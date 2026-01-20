@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signal Breaker</title>
+
+<style>
+    body {
+        background: #020617;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+
+    h1 { margin: 15px; }
+
+    .score {
+        display: flex;
+        justify-content: space-around;
+        font-size: 18px;
+    }
+
+    .bar {
+        width: 320px;
+        height: 25px;
+        background: #1e293b;
+        margin: 40px auto;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .zone {
+        position: absolute;
+        height: 100%;
+    }
+
+    .low { width: 35%; background: #ef4444; }
+    .perfect { width: 30%; left: 35%; background: #22c55e; }
+    .high { width: 35%; left: 65%; background: #eab308; }
+
+    .signal {
+        width: 8px;
+        height: 35px;
+        background: white;
+        position: absolute;
+        top: -5px;
+        left: 0;
+        border-radius: 4px;
+    }
+
+    .winner {
+        font-size: 26px;
+        color: #facc15;
+        margin-top: 20px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>📡 Signal Breaker</h1>
+
+<div class="score">
+    <div>You: <span id="pScore">0</span></div>
+    <div>Computer: <span id="cScore">0</span></div>
+</div>
+
+<div class="bar">
+    <div class="zone low"></div>
+    <div class="zone perfect"></div>
+    <div class="zone high"></div>
+    <div class="signal" id="signal"></div>
+</div>
+
+<p>Press <b>SPACE</b> when signal is GREEN</p>
+
+<div class="winner" id="winner"></div>
+
+<script>
+let pos = 0;
+let dir = 1;
+let speed = 3;
+let playerScore = 0;
+let cpuScore = 0;
+let playing = true;
+
+const signal = document.getElementById("signal");
+
+setInterval(() => {
+    if (!playing) return;
+
+    pos += dir * speed;
+    if (pos >= 312 || pos <= 0) dir *= -1;
+    signal.style.left = pos + "px";
+}, 20);
+
+function scoreHit(isPlayer) {
+    let points = 0;
+    if (pos >= 110 && pos <= 200) points = 2;
+    else if (pos >= 90 && pos <= 220) points = 1;
+
+    if (points > 0) {
+        if (isPlayer) {
+            playerScore += points;
+            document.getElementById("pScore").innerText = playerScore;
+        } else {
+            cpuScore += points;
+            document.getElementById("cScore").innerText = cpuScore;
+        }
+    }
+    checkWinner();
+}
+
+function checkWinner() {
+    if (playerScore >= 10) {
+        document.getElementById("winner").innerText = "🏆 You Win!";
+        playing = false;
+    }
+    if (cpuScore >= 10) {
+        document.getElementById("winner").innerText = "🤖 Computer Wins!";
+        playing = false;
+    }
+}
+
+// Player input
+document.addEventListener("keydown", e => {
+    if (e.code === "Space" && playing) {
+        scoreHit(true);
+    }
+});
+
+// Computer logic (predictive)
+setInterval(() => {
+    if (!playing) return;
+
+    let chance = Math.random();
+    if (chance > 0.85 && pos > 100 && pos < 210) {
+        scoreHit(false);
+    }
+}, 100);
+</script>
+
+</body>
+</html>
